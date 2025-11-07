@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dáša & Jirka - Potvrzení účasti na svatbě</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState } = React;
+    
+    // Lucide Icons as simple SVG components
+    const Heart = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    );
+    
+    const Calendar = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    );
+    
+    const MapPin = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    );
+    
+    const Send = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+      </svg>
+    );
+
+    function WeddingWebsite() {
+      const [formData, setFormData] = useState({
+        name: '',
+        attending: 'yes',
+        intolerances: '',
+        message: ''
+      });
+      const [status, setStatus] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setStatus('');
+
+        try {
+          const response = await fetch('/api/rsvp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          });
+
+          if (response.ok) {
+            setStatus('success');
+            setFormData({
+              name: '',
+              attending: 'yes',
+              intolerances: '',
+              message: ''
+            });
+          } else {
+            setStatus('error');
+          }
+        } catch (error) {
+          setStatus('error');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleChange = (e) => {
+        setFormData({
+          ...formData,
+          [e.target.name]: e.target.value
+        });
+      };
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50">
+          {/* Hero Section */}
+          <div className="relative py-20 px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <Heart className="w-16 h-16 mx-auto mb-6 text-rose-400 animate-pulse" />
+              <h1 className="text-5xl md:text-7xl font-serif mb-4 text-gray-800">
+                Dáša & Jirka
+              </h1>
+              <p className="text-2xl text-gray-600 mb-8">Budeme se brát!</p>
+            </div>
+          </div>
+
+          {/* Content Sections */}
+          <div className="max-w-2xl mx-auto px-4 pb-20 space-y-8">
+            
+            {/* Introduction Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-6 text-gray-800">
+                Vítejte!
+              </h2>
+              <div className="text-gray-700 leading-relaxed space-y-4">
+                <p className="text-center">
+                  S radostí vás zveme na naši svatbu. Budeme moc rádi, když tento speciální den prožijete s námi.
+                </p>
+                <p className="text-center">
+                    Těšíme se, že se u této příležitosti setká rodina a přátelé. Na shledanou!
+                </p>
+              </div>
+            </div>
+
+            {/* Organizational Information Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-6 text-gray-800">
+                Organizační informace
+              </h2>
+              <div className="space-y-6 text-gray-700">
+                
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-rose-500" />
+                    Datum a čas
+                  </h3>
+                  <p className="ml-7">Pátek 25. září 2026, začátek obřadu ve 14:00</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-rose-500" />
+                    Místo konání
+                  </h3>
+                  <p className="ml-7">
+                    <a
+                      href="https://maps.app.goo.gl/sgDyi79gwPbX72WZ7"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-rose-500 hover:text-rose-600 underline"
+                    >
+                      Vila Lanna, V Sadech 1/1, Praha 6 - Bubeneč
+                    </a>
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    🅿️ Parkování
+                  </h3>
+                  <p className="ml-7">
+                    K dispozici je omezené parkoviště přímo u místa konání. Doporučujeme využít MHD nebo taxi.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    ⏰ Délka svatby
+                  </h3>
+                  <p className="ml-7">
+                    Předpokládaný konec slavnosti je kolem 2:00 v noci.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    📋 Program
+                  </h3>
+                  <div className="ml-7 space-y-2">
+                    <p><span className="font-medium">14:00</span> - Svatební obřad</p>
+                    <p><span className="font-medium">15:00</span> - Gratulace a focení</p>
+                    <p><span className="font-medium">16:00</span> - Aperitiv v zahradě</p>
+                    <p><span className="font-medium">17:00</span> - Svatební hostina</p>
+                    <p><span className="font-medium">20:00</span> - Krájení dortu</p>
+                    <p><span className="font-medium">21:00</span> - Tanec a zábava</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Menu Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-6 text-gray-800">
+                Menu
+              </h2>
+              <div className="space-y-6 text-gray-700">
+                
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    🥗 Předkrm
+                  </h3>
+                  <p className="ml-7">Carpaccio z pražmy s marinovanými rajčaty a rukolou</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    🍲 Polévka
+                  </h3>
+                  <p className="ml-7">Hovězí vývar s masem a nudlemi</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    🍖 Hlavní chod
+                  </h3>
+                  <div className="ml-7 space-y-2">
+                    <p><span className="font-medium">Varianta A:</span> Hovězí svíčková na smetaně, houskové knedlíky, brusinky</p>
+                    <p><span className="font-medium">Varianta B:</span> Grilovaný losos s bylinkovou omáčkou, opečené brambory</p>
+                    <p><span className="font-medium">Vegetariánská:</span> Pečená zelenina s quinoou a fetou</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    🍰 Dezert
+                  </h3>
+                  <p className="ml-7">Svatební dort a domácí koláčky</p>
+                </div>
+
+                <div className="mt-6 p-4 bg-rose-50 rounded-lg">
+                  <p className="text-sm text-gray-600 text-center">
+                    Máte-li speciální dietní požadavky nebo alergie, uveďte je prosím do formuláře níže.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+            {/* RSVP Form Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-2 text-gray-800">
+                Potvrzení účasti
+              </h2>
+              <p className="text-center text-gray-600 mb-8">
+                Dejte nám prosím vědět, zda se můžete zúčastnit
+              </p>
+
+              {status === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
+                  Děkujeme! Váš potvrzení účasti bylo přijato.
+                </div>
+              )}
+
+              {status === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                  Něco se pokazilo. Zkuste to znovu.
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Celé jméno *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition"
+                    placeholder="Karel Novák"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Můžete se zúčastnit? *
+                  </label>
+                  <select
+                    name="attending"
+                    required
+                    value={formData.attending}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition"
+                  >
+                    <option value="yes">Ano, budu tam</option>
+                    <option value="no">Ne, bohužel nemohu</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dieta / Alergie
+                  </label>
+                  <textarea
+                    name="intolerances"
+                    value={formData.intolerances}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition resize-none"
+                    placeholder="Dejte nám prosím vědět, zda máte nějaké speciální požadavky na stravu nebo alergie..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Zpráva pro nás
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition resize-none"
+                    placeholder="Sdílejte svou radost nebo jakékoliv speciální poznámky..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-rose-400 to-pink-500 text-white py-4 rounded-lg font-medium text-lg hover:from-rose-500 hover:to-pink-600 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    'Odesílám...'
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Odeslat potvrzení účasti
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center mt-12 text-gray-600">
+              <p>Nemůžeme se dočkat, až to s vámi oslavíme!</p>
+              <Heart className="w-6 h-6 mx-auto mt-4 text-rose-400" />
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WeddingWebsite />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/rsvp"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "message": "RSVP received successfully"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}
+
