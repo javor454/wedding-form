@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme: only light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="only light">
+  <title>Dáša & Jirka - Potvrzení účasti na svatbě</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.26.9/babel.min.js"></script>
+  <script>
+    tailwind = {
+      config: {
+        darkMode: 'class',
+      },
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root,
+    html,
+    body {
+      color-scheme: only light;
+    }
+
+    .dress-code-swatch {
+      color-scheme: only light;
+      forced-color-adjust: none;
+    }
+
+    .wedding-bg {
+      background-color: #fff1f2;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23DB989F' fill-opacity='0.05'%3E%3Cpath d='M60 28c-6 0-11 4-12 10-1-6-6-10-12-10-7 0-12 6-10 13 6-3 12-1 15 4-3-5-9-7-15-4 2 7 7 13 14 13 6 0 11-4 12-10 1 6 6 10 12 10 7 0 12-6 10-13-6 3-12 1-15-4 3 5 9 7 15 4-2-7-7-13-14-13z'/%3E%3Cpath d='M88 72c-4 0-7 3-8 7-1-4-4-7-8-7-5 0-8 4-7 9 4-2 8-1 10 3-2-4-6-5-10-3 1 5 5 9 10 9 4 0 7-3 8-7 1 4 4 7 8 7 5 0 8-4 7-9-4 2-8 1-10-3 2 4 6 5 10 3-1-5-5-9-10-9z'/%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(to bottom right, #fff1f2, #fdf2f8, #faf5ff);
+      background-size: 120px 120px, 100% 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState } = React;
+    
+    // Lucide Icons as simple SVG components
+    const Heart = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    );
+    
+    const Calendar = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    );
+    
+    const MapPin = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    );
+    
+    const Send = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+      </svg>
+    );
+
+    const DressCodeSwatch = ({ color }) => (
+      <svg className="dress-code-swatch w-10 h-10" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="18" fill={color} stroke="#e5e7eb" strokeWidth="2" />
+      </svg>
+    );
+
+    const DRESS_CODE_COLORS = [
+      '#000000',
+      '#959595',
+      '#E6D8C1',
+      '#F98D29',
+      '#DB989F',
+      '#FFF2A8',
+    ];
+
+    function WeddingWebsite() {
+      const [formData, setFormData] = useState({
+        name: '',
+        attending: 'yes',
+        intolerances: '',
+        message: ''
+      });
+      const [status, setStatus] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setStatus('');
+
+        try {
+          const response = await fetch('/api/rsvp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          });
+
+          if (response.ok) {
+            setStatus('success');
+            setFormData({
+              name: '',
+              attending: 'yes',
+              intolerances: '',
+              message: ''
+            });
+          } else {
+            setStatus('error');
+          }
+        } catch (error) {
+          setStatus('error');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleChange = (e) => {
+        setFormData({
+          ...formData,
+          [e.target.name]: e.target.value
+        });
+      };
+
+      return (
+        <div className="min-h-screen wedding-bg">
+          {/* Hero Section */}
+          <div className="relative py-20 px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <Heart className="w-16 h-16 mx-auto mb-6 text-rose-400 animate-pulse" />
+              <h1 className="text-5xl md:text-7xl font-serif mb-4 text-gray-800">
+                Dáša & Jirka
+              </h1>
+              <p className="text-2xl text-gray-600 mb-8">Budeme se brát!</p>
+              <img
+                src="/wedding-final.png"
+                alt="Dáša a Jirka"
+                className="mx-auto rounded-2xl shadow-lg max-w-sm w-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Content Sections */}
+          <div className="max-w-2xl mx-auto px-4 pb-20 space-y-8">
+            
+            {/* Introduction Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-6 text-gray-800">
+                🕊️ Vítejte! 🕊️
+              </h2>
+              <div className="text-gray-700 leading-relaxed space-y-4">
+                <p className="text-center">
+                  S radostí vás zveme na naši svatbu. Budeme moc rádi, když tento speciální den prožijete s námi.
+                </p>
+                <p className="text-center">
+                    Těšíme se, že se u této příležitosti setká rodina a přátelé. Na shledanou!
+                </p>
+              </div>
+            </div>
+
+            {/* Organizational Information Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-6 text-gray-800">
+                📅 Organizační informace 📅
+              </h2>
+              <div className="space-y-6 text-gray-700">
+                
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-rose-500" />
+                    Datum a čas
+                  </h3>
+                  <p className="ml-7">Pátek 25. září 2026, začátek obřadu ve 12:00 (normální pracovní den!!)</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-rose-500" />
+                    Místo konání
+                  </h3>
+                  <p className="ml-7">
+                    <a
+                      href="https://maps.app.goo.gl/sgDyi79gwPbX72WZ7"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-rose-500 hover:text-rose-600 underline"
+                    >
+                      Vila Lanna, V Sadech 1/1, Praha 6 - Bubeneč
+                    </a>
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    🅿️ Parkování
+                  </h3>
+                  <p className="ml-7">
+                    K dispozici je omezené parkoviště přímo u místa konání. Doporučujeme využít MHD nebo taxi.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    🚬 Kouření
+                  </h3>
+                  <p className="ml-7">Kouření je povoleno venku na terase.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    📋 Program
+                  </h3>
+                  <div className="ml-7 space-y-3">
+                    {[
+                      { time: '11:00–11:45', label: 'Příchod hostů', icon: '🚶' },
+                      { time: '12:00', label: 'Obřad', icon: '💍' },
+                      { time: '13:15', label: 'Přípitek a oběd', icon: '🥂' },
+                      { time: '16:00', label: 'Krájení dortu', icon: '🎂' },
+                      { time: '18:00', label: 'Raut a volná zábava', icon: '🎉' },
+                      { time: '21:00', label: '???', icon: '🤫', secret: true },
+                      { time: '22:00', label: 'Konec', icon: '🌙' },
+                    ].map(({ time, label, icon, secret }) => (
+                      <div key={time} className="flex items-start gap-3">
+                        <span className="text-xl">{icon}</span>
+                        <div>
+                          <span className="font-semibold text-rose-500">{time}</span>
+                          {secret ? (
+                            <span className="ml-2 text-gray-500 italic">
+                              Tajný DJ set 🎧
+                            </span>
+                          ) : (
+                            <span className="ml-2 text-gray-700">{label}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    <p className="text-sm text-gray-500 italic mt-2">
+                      Časy jsou kromě obřadu pouze orientační. Společné focení proběhne dle počasí.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Dress Code Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-6 text-gray-800">
+                👗 Dress code 👗
+              </h2>
+              <div className="text-gray-700 leading-relaxed space-y-6">
+                <p className="text-center">
+                  Chceme, abyste se především cítili pohodlně - budeme ale rádi, pokud se s 
+                  námi sladíte ve stylu <strong>smart casual</strong> a v následujících barvách:
+                </p>
+                <div className="flex justify-center gap-3 flex-wrap">
+                  {DRESS_CODE_COLORS.map((color) => (
+                    <DressCodeSwatch key={color} color={color} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Menu Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-8 text-gray-800">
+                🍽️ Menu 🍽️
+              </h2>
+
+              {/* Menu tabs */}
+              {(() => {
+                const [menuTab, setMenuTab] = React.useState('meat');
+                const menus = {
+                  meat: {
+                    label: '🥩 Masová varianta',
+                    courses: [
+                      { heading: 'Předkrm', dish: 'Pečený roastbeef, bylinková majonéza, salát' },
+                      { heading: 'Polévka', dish: 'Hovězí vývar, játrové knedlíčky, nudle, zelenina' },
+                      { heading: 'Hlavní chod', dish: 'Steak z vepřové plumy, batátové pyré, restované romanesco, vinná omáčka' },
+                      { heading: 'Dezert', dish: 'Svatební dort\nSweet bar' },
+                    ],
+                  },
+                  vege: {
+                    label: '🥦 Vegetariánská varianta',
+                    courses: [
+                      { heading: 'Předkrm', dish: 'Avokádový tataráček, ciabatta' },
+                      { heading: 'Polévka', dish: 'Zeleninový vývar, rýžové nudle, zelenina Julienne' },
+                      { heading: 'Hlavní chod', dish: 'Marinované grilované tofu, grilovaná zelenina, bulgur' },
+                      { heading: 'Dezert', dish: 'Svatební dort\nSweet bar' },
+                    ],
+                  },
+                };
+                const current = menus[menuTab];
+                return (
+                  <div>
+                    <div className="flex rounded-xl overflow-hidden border border-rose-200 mb-8">
+                      {Object.entries(menus).map(([key, m]) => (
+                        <button
+                          key={key}
+                          onClick={() => setMenuTab(key)}
+                          className={`flex-1 py-3 text-sm font-medium transition-colors ${menuTab === key ? 'bg-rose-400 text-white' : 'bg-white text-gray-600 hover:bg-rose-50'}`}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="space-y-6 text-center">
+                      {current.courses.map(({ heading, dish }) => (
+                        <div key={heading}>
+                          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-gray-400 mb-1">{heading}</p>
+                          <p className="text-gray-700 italic whitespace-pre-line">{dish}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-8 p-4 bg-rose-50 rounded-lg">
+                      <p className="text-sm text-gray-600 text-center">
+                        Máte-li speciální dietní požadavky nebo alergie, uveďte je prosím do formuláře níže.
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Drinks Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-8 text-gray-800">
+                🥂 Nápoje 🥂
+              </h2>
+              <div className="space-y-8 text-center text-gray-700">
+
+                <div>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl">☕</span>
+                    <h3 className="font-semibold text-lg text-gray-800">Teplé nápoje</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm space-y-0.5">
+                    {['Espresso', 'Lungo', 'Cappuccino', 'Čaje Tetley'].map(d => <span key={d} className="block">{d}</span>)}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl">🥤</span>
+                    <h3 className="font-semibold text-lg text-gray-800">Nealko</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    {['Pepsi', '7Up', 'Mirinda', 'Tonic', 'Džus TOMA 0,25 l (pomeranč, jablko, jahoda)', 'Birell 0,33 l', 'Domácí malinová limonáda'].map(d => <span key={d} className="block">{d}</span>)}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl">🍺</span>
+                    <h3 className="font-semibold text-lg text-gray-800">Alko</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    {[
+                      'Točená Plzeň',
+                      'Bílé víno Neuburské 2022 – Sedlák',
+                      'Bílé víno Rulandské šedé 2023 – Mádl',
+                      'Červené víno André 2020 – Velké Pavlovice',
+                      'Červené víno Malbec 2022 – Bodega Callia',
+                      'Prosecco Bellussi DOC Brut',
+                    ].map(d => <span key={d} className="block">{d}</span>)}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl">🍸</span>
+                    <h3 className="font-semibold text-lg text-gray-800">Míchané nápoje</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    {['Aperol Spritz', 'Paradise'].map(d => <span key={d} className="block">{d}</span>)}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl">🥃</span>
+                    <h3 className="font-semibold text-lg text-gray-800">Destiláty a likéry</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    Žufánek – Slivovice, Hruškovice, Meruňkovice,<br />Ořechovka, Višňovka, Kontušovka
+                  </p>
+                </div>
+
+              </div>
+              <p className="text-center text-sm text-gray-500 mt-6 italic">
+                🍹 Nápoje objednávejte u obsluhy.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-6 text-gray-800">
+                🎁 Svatební dary 🎁
+              </h2>
+              <p className="text-gray-700 leading-relaxed text-center">
+                S dárky si prosím nelamte hlavu — hlavně doražte 🥹.
+                Pokud byste přeci jen chtěli něco darovat, budeme rádi za příspěvek na svatební cestu.
+              </p>
+              <div className="mt-6 p-4 bg-rose-50 rounded-lg text-center">
+                <p className="text-sm text-gray-600 mb-1">Číslo účtu pro příspěvek:</p>
+                <p className="font-mono font-semibold text-gray-800 tracking-wide select-all">670100-2214071807/6210</p>
+              </div>
+            </div>
+
+            {/* RSVP Form Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              <h2 className="text-3xl font-serif text-center mb-2 text-gray-800">
+                ✅ Potvrzení účasti ✅
+              </h2>
+              <p className="text-center text-gray-600 mb-8">
+                Dejte nám prosím vědět, zda se můžete zúčastnit
+              </p>
+
+              {status === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
+                  Děkujeme! Váše potvrzení bylo přijato.
+                </div>
+              )}
+
+              {status === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                  Něco se pokazilo. Zkuste to znovu.
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Celé jméno *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition"
+                    placeholder="Karel Novák"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Můžete se zúčastnit? *
+                  </label>
+                  <select
+                    name="attending"
+                    required
+                    value={formData.attending}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition"
+                  >
+                    <option value="yes">Ano, budu tam</option>
+                    <option value="no">Ne, bohužel nemohu</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dieta / Alergie
+                  </label>
+                  <textarea
+                    name="intolerances"
+                    value={formData.intolerances}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition resize-none"
+                    placeholder="Máte nějaké speciální požadavky na stravu nebo alergie?"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Zpráva pro nás
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent outline-none transition resize-none"
+                    placeholder="Sdílejte svou radost nebo jakékoliv speciální poznámky..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-rose-400 to-pink-500 text-white py-4 rounded-lg font-medium text-lg hover:from-rose-500 hover:to-pink-600 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    'Odesílám...'
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Odeslat potvrzení účasti
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            {/* Footer */}
+            <div className="text-center mt-12 text-gray-600">
+              <Heart className="w-6 h-6 mx-auto mt-4 text-rose-400" />
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WeddingWebsite />);
+  </script>
+</body>
+</html>
